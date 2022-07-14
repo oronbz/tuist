@@ -7,6 +7,31 @@ class AccountCreateService < ApplicationService
     Base = Class.new(StandardError)
     CantObtainAccountName = Class.new(Base)
   end
+  module Error
+    class CantObtainAccountName < CloudError
+      attr_reader :name
+
+      def initialize(name)
+        @name = name
+      end
+
+      def message
+        "Account with name #{name} cannot be created."
+      end
+    end
+
+    class CantObtainAccountName < CloudError
+      attr_reader :errors
+
+      def initialize(errors)
+        @name = name
+      end
+
+      def message
+        "Account with name #{name} cannot be created."
+      end
+    end
+  end
 
   attr_reader :name, :owner
 
@@ -17,10 +42,16 @@ class AccountCreateService < ApplicationService
   end
 
   def call
-    Account.create!(
-      name: account_name,
-      owner: owner
-    )
+    puts "create"
+    begin
+      Account.create!(
+        name: account_name,
+        owner: owner
+      )
+    rescue ActiveRecord::RecordInvalid => invalid
+      puts "ola!"
+      puts invalid.record.errors.full_messages
+    end
   end
 
   private
